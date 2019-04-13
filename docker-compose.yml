@@ -1,0 +1,145 @@
+version: "2.1"
+services:
+  zeppelin:
+    image: apache/zeppelin:0.8.1
+    hostname: zeppelin
+    container_name: zeppelin
+    environment:
+      ZEPPELIN_INTERPRETER_OUTPUT_LIMIT: 10485760
+      ZEPPELIN_NOTEBOOK_DIR: '/notebooks'
+      ZEPPELIN_LOG_DIR: '/logs'
+    volumes:
+      - $PWD/zeppelin/data:/data
+      - $PWD/build/zeppelin/logs:/logs
+      - $PWD/zeppelin/notebooks:/notebooks
+    ports:
+      - "8888:8080"
+
+  postgres:
+    image: postgres
+    restart: always
+    container_name: postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+    ports:
+      - "5432:5432"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.0
+    container_name: elasticsearch
+    #restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      node.name: elasticsearch
+      cluster.name: demo-cluster
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.5.2
+    container_name: kibana
+    restart: always
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    environment:
+      xpack.security.enabled: "false"
+      discovery.type: "single-node"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.1.2
+    restart: always
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+    ports:
+      - "2181:2181"
+
+  kafka1:
+    image: confluentinc/cp-enterprise-kafka:5.1.2
+    hostname: kafka1
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9091:9091"
+      - "29091:29091"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9091,PLAINTEXT://kafka1:29091
+      KAFKA_BROKER_ID: 1
+      KAFKA_BROKER_RACK: "r1"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_JMX_PORT: 9991
+
+  kafka2:
+    image: confluentinc/cp-enterprise-kafka:5.1.2
+    hostname: kafka2
+    container_name: kafka2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka2:29092
+      KAFKA_BROKER_ID: 2
+      KAFKA_BROKER_RACK: "r1"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_JMX_PORT: 9991
+
+  schemaregistry:
+    image: confluentinc/cp-schema-registry:5.1.2
+    container_name: schemaregistry
+    restart: always
+    depends_on:
+      - zookeeper
+      - kafka1
+      - kafka2
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka1:29091,PLAINTEXT://kafka2:29092"
+      SCHEMA_REGISTRY_HOST_NAME: schemaregistry
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8085"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
+    ports:
+      - 8085:8085
+
+  kafka-client:
+    image: confluentinc/cp-enterprise-kafka:5.1.2
+    hostname: kafka-client
+    container_name: kafka-client
+    depends_on:
+      - kafka1
+    command: |
+       bash -c -a 'echo Waiting for Kafka to be ready... && \
+           /etc/confluent/docker/configure && \
+           cub kafka-ready -b kafka1:29091 1 60 --config /etc/kafka/kafka.properties && \
+           sleep 5 && \
+           kafka-topics --zookeeper zookeeper:2181 --topic dc-local.demo-domain.cmd.user.1 --create --replication-factor 2 --partitions 2 --config cleanup.policy=compact --config segment.bytes=104857600 && \
+           kafka-topics --zookeeper zookeeper:2181 --topic dc-local.demo-domain.cdc.user.1 --create --replication-factor 2 --partitions 2 --config cleanup.policy=compact --config segment.bytes=104857600'
+
+    environment:
+      # The following settings are listed here only to satisfy the image's requirements.
+      # We override the image's `command` anyways, hence this container will not start a broker.
+      KAFKA_BROKER_ID: ignored
+      KAFKA_ZOOKEEPER_CONNECT: ignored
+      KAFKA_ADVERTISED_LISTENERS: ignored
+    ports:
+      - "7073:7073"

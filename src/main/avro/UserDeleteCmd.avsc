@@ -1,0 +1,9 @@
+{
+  "type": "record",
+  "namespace": "com.github.jhollandus.demo.cmd",
+  "name": "UserDeleteCmd",
+  "fields" : [
+    {"name": "cmdInfo", "type":  ["null", "CmdInfo"], "default":  null},
+    {"name": "user", "type":  ["null", "User"], "default":  null}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "namespace": "com.github.jhollandus.demo.cmd",
+  "name": "User",
+  "fields" : [
+    {"name": "name", "type": "string", "default":  ""},
+    {"name": "email", "type":  "string", "default":  ""},
+    {"name": "id", "type": "string", "default": ""},
+    {"name": "version", "type": "long", "default": 0}
+  ]
+}

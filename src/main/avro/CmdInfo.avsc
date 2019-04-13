@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "namespace": "com.github.jhollandus.demo.cmd",
+  "name": "CmdInfo",
+  "fields" : [
+    {"name": "cmdSagaId", "type":  "string", "default":  ""},
+    {"name": "requestTime", "type": ["null", "long"], "default":  null},
+    {"name": "requestedBy", "type":  "string", "default":  ""}
+  ]
+}

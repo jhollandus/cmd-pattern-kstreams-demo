@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "namespace": "com.github.jhollandus.demo.cmd",
+  "name": "UserCmdError",
+  "fields" : [
+    {"name": "cmdError", "type":  ["null", "CmdError"], "default":  null},
+    {"name": "user", "type":  ["null", "User"], "default":  null}
+
+  ]
+}

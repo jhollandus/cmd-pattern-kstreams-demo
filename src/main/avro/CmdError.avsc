@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "namespace": "com.github.jhollandus.demo.cmd",
+  "name": "CmdError",
+  "fields" : [
+    {"name": "cmdInfo", "type":  ["null", "CmdInfo"], "default": null},
+    {"name": "cmdName", "type": "string", "default":  ""},
+    {"name": "process", "type": "string", "default":  ""},
+    {"name": "timestamp", "type": ["null", "long"], "default":  null},
+    {"name": "error", "type":  "string", "default":  ""}
+  ]
+}

@@ -1,0 +1,352 @@
+{
+  "paragraphs": [
+    {
+      "title": "Init",
+      "text": "%groovy\ndef url \u003d \u0027http://host.docker.internal:8080/api/user\u0027\ndef api \u003d new Expando()\n\napi.fetchAll \u003d {\n    HTTP.get(\n      url : \"${url}\",\n      headers: [\n        \u0027Accept\u0027:\u0027application/json\u0027,\n        \u0027user\u0027 :\u0027zeppelin\u0027\n      ]\n    ).response\n}\n\napi.fetchAllAsTable \u003d {\n  def table \u003d []\n  table.add([\u0027name\u0027, \u0027email\u0027, \u0027id\u0027, \u0027version\u0027])\n  table.addAll(api.fetchAll().body.content.collect { [it.name, it.email, it.id, it.version] })\n  return table\n}\n\napi.create \u003d {String name, String email -\u003e\n    HTTP.post(\n      url : \"${url}\",\n      body: [name: name, email: email],\n      headers: [\n        \u0027Content-Type\u0027: \u0027application/json\u0027,\n        \u0027Accept\u0027:\u0027application/json\u0027,\n        \u0027user\u0027:\u0027zeppelin\u0027,\n      ]\n    ).response\n}\n\napi.update \u003d {String name, String email, String id, Long version -\u003e\n    HTTP.put(\n      url : \"${url}/${id}\",\n      body: [name: name, email: email, version: version],\n      headers: [\n        \u0027Content-Type\u0027: \u0027application/json\u0027,\n        \u0027Accept\u0027:\u0027application/json\u0027,\n        \u0027user\u0027:\u0027zeppelin\u0027,\n      ]\n    ).response\n}\n\napi.delete \u003d {String id  -\u003e\n    HTTP.delete(\n      url : \"${url}/${id}\",\n\n      headers: [\n        \u0027Content-Type\u0027: \u0027application/json\u0027,\n        \u0027Accept\u0027:\u0027application/json\u0027,\n        \u0027user\u0027:\u0027zeppelin\u0027,\n      ]\n    ).response\n}\n\napi.deleteAll \u003d {\n    api.fetchAll().body.content.collect {\n       api.delete(it.id).body\n    }\n}\n\napi.get \u003d {\n    HTTP.get(\n      url : \"${url}/${id}\",\n      headers: [\n        \u0027Accept\u0027:\u0027application/json\u0027,\n        \u0027user\u0027:\u0027zeppelin\u0027,\n      ]\n    ).response\n}\n\ng.put(\u0027api\u0027, api)\n",
+      "user": "anonymous",
+      "dateUpdated": "2019-04-12 21:50:29.829",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "editorMode": "ace/mode/undefined",
+        "title": true,
+        "editorHide": true,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "jobName": "paragraph_1554992181264_-976808238",
+      "id": "20190411-141621_1879534918",
+      "dateCreated": "2019-04-11 14:16:21.267",
+      "dateStarted": "2019-04-12 20:27:49.986",
+      "dateFinished": "2019-04-12 20:27:50.130",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Delete all users",
+      "text": "%groovy\n\nprintln(g.get(\u0027api\u0027).deleteAll())",
+      "user": "anonymous",
+      "dateUpdated": "2019-04-12 21:50:32.868",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "editorMode": "ace/mode/undefined",
+        "title": true,
+        "editorHide": true,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "[[email:, id:d3e4c256-3743-45ae-b37e-8b6b5eebdac1, name:, version:-1], [email:, id:2b9664ca-e150-409a-85d4-7c95eab0bdb2, name:, version:-1], [email:, id:62cd5ae4-77ef-42bb-9758-93787d3b1cc9, name:, version:-1], [email:, id:d332e06b-002d-485e-9b88-4af4926f8ea9, name:, version:-1]]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1555007998481_1383498473",
+      "id": "20190411-183958_1078208852",
+      "dateCreated": "2019-04-11 18:39:58.489",
+      "dateStarted": "2019-04-12 21:49:38.819",
+      "dateFinished": "2019-04-12 21:49:39.386",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Create User",
+      "text": "\n%groovy\ng.angularBind(\u0027name\u0027, \u0027Jon Doe\u0027)\ng.angularBind(\u0027email\u0027, \u0027jd@fake.email\u0027)\n    \ndef paragraphId \u003d \u002720190412-155052_198415823\u0027\ndef fields \u003d [\n    [name: \u0027Name\u0027, var: \u0027name\u0027],\n    [name: \u0027Email\u0027, var: \u0027email\u0027]\n]\n\ndef onclick \u003d fields.collect { \n    \"z.angularBind(\u0027${it.var}\u0027, ${it.var}, \u0027${paragraphId}\u0027)\"\n} + \"z.runParagraph(\u0027${paragraphId}\u0027)\"\n\nprintln \"\"\"\n%angular\n\n\u003cform class\u003d\"form-inline\"\u003e\n  \u003cdiv class\u003d\"form-group\"\u003e\n    ${fields.collect { \"\u003clabel for\u003d\\\"${it.var}\\\"\u003e${it.name}: \u003c/label\u003e\u003cinput type\u003d\\\"text\\\" class\u003d\\\"form-control\\\" id\u003d\\\"${it.var}\\\" placeholder\u003d\\\"Jon Doe\\\" ng-model\u003d\\\"${it.var}\\\"\u003e\u003c/input\u003e\" }.join(\u0027\u0026nbsp;\u0027)}\n  \u003c/div\u003e\n  \u003cbutton type\u003d\"submit\" class\u003d\"btn btn-primary\" ng-click\u003d\"${onclick.join(\u0027;\u0027)};\"\u003e Create \u003c/button\u003e\n\u003c/form\u003e\n\"\"\"\n",
+      "user": "anonymous",
+      "dateUpdated": "2019-04-12 21:48:25.538",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "editorMode": "ace/mode/undefined",
+        "editorHide": true,
+        "tableHide": false,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\n"
+          },
+          {
+            "type": "ANGULAR",
+            "data": "\n\u003cform class\u003d\"form-inline\"\u003e\n  \u003cdiv class\u003d\"form-group\"\u003e\n    \u003clabel for\u003d\"name\"\u003eName: \u003c/label\u003e\u003cinput type\u003d\"text\" class\u003d\"form-control\" id\u003d\"name\" placeholder\u003d\"Jon Doe\" ng-model\u003d\"name\"\u003e\u003c/input\u003e\u0026nbsp;\u003clabel for\u003d\"email\"\u003eEmail: \u003c/label\u003e\u003cinput type\u003d\"text\" class\u003d\"form-control\" id\u003d\"email\" placeholder\u003d\"Jon Doe\" ng-model\u003d\"email\"\u003e\u003c/input\u003e\n  \u003c/div\u003e\n  \u003cbutton type\u003d\"submit\" class\u003d\"btn btn-primary\" ng-click\u003d\"z.angularBind(\u0027name\u0027, name, \u002720190412-155052_198415823\u0027);z.angularBind(\u0027email\u0027, email, \u002720190412-155052_198415823\u0027);z.runParagraph(\u002720190412-155052_198415823\u0027);\"\u003e Create \u003c/button\u003e\n\u003c/form\u003e\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1555081033401_-2078634608",
+      "id": "20190412-145713_673685546",
+      "dateCreated": "2019-04-12 14:57:13.401",
+      "dateStarted": "2019-04-12 20:36:22.992",
+      "dateFinished": "2019-04-12 20:36:23.017",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "All Users",
+      "text": "%groovy\n\ndef name \u003d g.angular(\u0027name\u0027)\ndef email \u003d g.angular(\u0027email\u0027)\ndef deleteId \u003d g.angular(\u0027deleteId\u0027)\n\nif(deleteId) {\n    g.get(\u0027api\u0027).delete(deleteId)\n}\n\nif(name \u0026\u0026 email) {\n  g.get(\u0027api\u0027).create(name, email)\n}\n\n\ndef all \u003d g.get(\u0027api\u0027).fetchAll()\n\n//    \u003ctd\u003e\u003cbutton ng-click\u003d\"z.angularBind(\u0027deleteId\u0027, \u0027${it.id}\u0027, \u0027${paragraph}\u0027);z.runParagraph(\u0027${paragraph}\u0027);\"\u003eDelete\u003c/button\u003e\u003c/td\u003e\ndef markupData \u003d all.body.content.collect { \"\"\"\n\u003ctr\u003e\n\n    \u003ctd\u003e${it.name}\u003c/td\u003e\n    \u003ctd\u003e${it.email}\u003c/td\u003e\n    \u003ctd\u003e${it.id}\u003c/td\u003e\n    \u003ctd\u003e${it.version}\u003c/td\u003e\n\u003c/tr\u003e\"\"\"}\n\nprintln \"\"\"\n%angular\n\u003cstyle\u003e\ntable, th, td {\n    border: 1px solid black;\n    \n}\n\nth, td {\n    padding: 0.5em;\n    \n}\n\nth {\n  background-color: #AAAAAA;\n  font-weight: bold;\n}\n\nbutton {\n    color: red\n}\n\u003c/style\u003e\n\u003ctable\u003e\n    \u003ctr\u003e\u003cth\u003eName\u003c/th\u003e\u003cth\u003eEmail\u003c/th\u003e\u003cth\u003eID\u003c/th\u003e\u003cth\u003eVersion\u003c/th\u003e\u003c/tr\u003e\n    ${markupData.join(\u0027\\n\u0027)}\n\u003c/table\u003e\n\"\"\"",
+      "user": "anonymous",
+      "dateUpdated": "2019-04-12 21:50:51.295",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "name": "string",
+                      "email": "string",
+                      "id": "string",
+                      "version": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          },
+          "2": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "_": "string",
+                      "Name": "string",
+                      "Email": "string",
+                      "Id": "string",
+                      "Version": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "editorMode": "ace/mode/undefined",
+        "editorHide": true,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\n"
+          },
+          {
+            "type": "ANGULAR",
+            "data": "\u003cstyle\u003e\ntable, th, td {\n    border: 1px solid black;\n    \n}\n\nth, td {\n    padding: 0.5em;\n    \n}\n\nth {\n  background-color: #AAAAAA;\n  font-weight: bold;\n}\n\nbutton {\n    color: red\n}\n\u003c/style\u003e\n\u003ctable\u003e\n    \u003ctr\u003e\u003cth\u003eName\u003c/th\u003e\u003cth\u003eEmail\u003c/th\u003e\u003cth\u003eID\u003c/th\u003e\u003cth\u003eVersion\u003c/th\u003e\u003c/tr\u003e\n    \n\u003ctr\u003e\n\n    \u003ctd\u003eJon Doe22\u003c/td\u003e\n    \u003ctd\u003ejd@email.fake\u003c/td\u003e\n    \u003ctd\u003ef3bcb79e-2b28-444c-9850-95c982db73f2\u003c/td\u003e\n    \u003ctd\u003e1\u003c/td\u003e\n\u003c/tr\u003e\n\n\u003ctr\u003e\n\n    \u003ctd\u003eJon Doe2\u003c/td\u003e\n    \u003ctd\u003ejd@email.fake\u003c/td\u003e\n    \u003ctd\u003e9ba1a3ef-19db-4dce-9ddd-2179cb3dfb8a\u003c/td\u003e\n    \u003ctd\u003e1\u003c/td\u003e\n\u003c/tr\u003e\n\n\u003ctr\u003e\n\n    \u003ctd\u003eJon Doe\u003c/td\u003e\n    \u003ctd\u003ejd@email.fake\u003c/td\u003e\n    \u003ctd\u003e2c5a5a98-5710-4c54-97cc-44825cd8192b\u003c/td\u003e\n    \u003ctd\u003e1\u003c/td\u003e\n\u003c/tr\u003e\n\n\u003ctr\u003e\n\n    \u003ctd\u003eJon Doe222\u003c/td\u003e\n    \u003ctd\u003ejd@email.fake\u003c/td\u003e\n    \u003ctd\u003e1845ca3e-baff-4190-92b8-89b9da60b062\u003c/td\u003e\n    \u003ctd\u003e1\u003c/td\u003e\n\u003c/tr\u003e\n\u003c/table\u003e\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1555084252404_604657059",
+      "id": "20190412-155052_198415823",
+      "dateCreated": "2019-04-12 15:50:52.404",
+      "dateStarted": "2019-04-12 21:50:51.316",
+      "dateFinished": "2019-04-12 21:50:51.617",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Delete User By Id",
+      "text": "%groovy\ndef paragraphId \u003d \u002720190412-155052_198415823\u0027\ndef fields \u003d [\n    [name: \u0027ID\u0027, var: \u0027deleteId\u0027]\n]\n\ndef onclick \u003d fields.collect { \n    \"z.angularBind(\u0027${it.var}\u0027, ${it.var}, \u0027${paragraphId}\u0027)\"\n} + \"z.runParagraph(\u0027${paragraphId}\u0027)\"\n\nprintln \"\"\"\n%angular\n\n\u003cform class\u003d\"form-inline\"\u003e\n  \u003cdiv class\u003d\"form-group\"\u003e\n    ${fields.collect { \"\u003clabel for\u003d\\\"${it.var}\\\"\u003e${it.name}: \u003c/label\u003e\u003cinput type\u003d\\\"text\\\" class\u003d\\\"form-control\\\" id\u003d\\\"${it.var}\\\" ng-model\u003d\\\"${it.var}\\\"\u003e\u003c/input\u003e\" }.join(\u0027\u0026nbsp;\u0027)}\n  \u003c/div\u003e\n  \u003cbutton type\u003d\"submit\" class\u003d\"btn btn-primary\" ng-click\u003d\"${onclick.join(\u0027;\u0027)};\"\u003e Delete \u003c/button\u003e\n\u003c/form\u003e\n\"\"\"",
+      "user": "anonymous",
+      "dateUpdated": "2019-04-12 21:48:49.511",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "editorMode": "ace/mode/undefined",
+        "editorHide": true,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\n"
+          },
+          {
+            "type": "ANGULAR",
+            "data": "\n\u003cform class\u003d\"form-inline\"\u003e\n  \u003cdiv class\u003d\"form-group\"\u003e\n    \u003clabel for\u003d\"deleteId\"\u003eID: \u003c/label\u003e\u003cinput type\u003d\"text\" class\u003d\"form-control\" id\u003d\"deleteId\" ng-model\u003d\"deleteId\"\u003e\u003c/input\u003e\n  \u003c/div\u003e\n  \u003cbutton type\u003d\"submit\" class\u003d\"btn btn-primary\" ng-click\u003d\"z.angularBind(\u0027deleteId\u0027, deleteId, \u002720190412-155052_198415823\u0027);z.runParagraph(\u002720190412-155052_198415823\u0027);\"\u003e Delete \u003c/button\u003e\n\u003c/form\u003e\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1555102100039_1276870601",
+      "id": "20190412-204820_752318804",
+      "dateCreated": "2019-04-12 20:48:20.040",
+      "dateStarted": "2019-04-12 21:48:11.485",
+      "dateFinished": "2019-04-12 21:48:11.527",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "demo",
+  "id": "2E9SUYRTK",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {
+    "angular:shared_process": [],
+    "groovy:shared_process": [
+      {
+        "name": "name",
+        "object": "Jon Doe",
+        "noteId": "2E9SUYRTK"
+      },
+      {
+        "name": "deleteId",
+        "object": "NA",
+        "noteId": "2E9SUYRTK"
+      },
+      {
+        "name": "email",
+        "object": "jd@fake.email",
+        "noteId": "2E9SUYRTK"
+      },
+      {
+        "name": "deleteId",
+        "object": "6d1794a0-69dd-40d2-93e5-c9e6a05b0d5e",
+        "noteId": "2E9SUYRTK",
+        "paragraphId": "20190412-204820_752318804"
+      },
+      {
+        "name": "name",
+        "object": "Jon Doe222",
+        "noteId": "2E9SUYRTK",
+        "paragraphId": "20190412-155052_198415823"
+      },
+      {
+        "name": "deleteId",
+        "object": "6d1794a0-69dd-40d2-93e5-c9e6a05b0d5e",
+        "noteId": "2E9SUYRTK",
+        "paragraphId": "20190412-155052_198415823"
+      },
+      {
+        "name": "email",
+        "object": "jd@email.fake",
+        "noteId": "2E9SUYRTK",
+        "paragraphId": "20190412-155052_198415823"
+      }
+    ],
+    "spark:shared_process": [
+      {
+        "name": "data",
+        "object": {
+          "label": "h1",
+          "scope": {},
+          "minimizeEmpty": false,
+          "child": {},
+          "attributes": {}
+        },
+        "noteId": "2E9SUYRTK",
+        "paragraphId": "20190412-204820_752318804"
+      }
+    ]
+  },
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {}
+}
